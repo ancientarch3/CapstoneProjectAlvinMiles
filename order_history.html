@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Order History{% endblock %}
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card hover-lift rounded-4 overflow-hidden shadow-sm" style="background-color: #F5F5F5; height: 700px;">
+        <div class="card-body" style="background-color: #F5F5F5;">
+          <h1 class="card-title text-center h4 py-2">Order History</h1>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light fs-5">
+                        <tr>
+                            <th style="background-color: #F5F5F5;">Date</th>
+                            <th style="background-color: #F5F5F5;">Time</th>
+                            <th style="background-color: #F5F5F5;">Stock</th>
+                            <th style="background-color: #F5F5F5;">Company</th>
+                            <th style="background-color: #F5F5F5;">Type</th>
+                            <th style="background-color: #F5F5F5;">Quantity</th>
+                            <th style="background-color: #F5F5F5;">Price</th>
+                            <th style="background-color: #F5F5F5;">Total Value</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% if orders %}
+                            {% for order in orders %}
+                            <tr class="fs-5">
+                                <td style="background-color: #F5F5F5;">{{ order.createdAt.strftime('%Y-%m-%d') }}</td>
+                                <td style="background-color: #F5F5F5;">{{ order.createdAt.strftime('%H:%M:%S') }}</td>
+                                <td style="background-color: #F5F5F5;">{{ order.ticker }}</td>
+                                <td style="background-color: #F5F5F5;">{{ order.companyName }}</td>
+
+                                <td style="background-color: #F5F5F5;">
+                                    {% if order.type == 'BUY' %}
+                                        <span class="badge bg-success">Buy</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Sell</span>
+                                    {% endif %}
+                                </td>
+
+                                <td style="background-color: #F5F5F5;">{{ order.quantity }}</td>
+                                <td style="background-color: #F5F5F5;">${{ "%.2f"|format(order.price) }}</td>
+                                <td style="background-color: #F5F5F5;">${{ "%.2f"|format(order.totalValue) }}</td>
+
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr class="fs-5">
+                            <td colspan="9" class="text-center py-4" style="background-color: #F5F5F5;">
+                                <strong>No orders yet.</strong><br>
+                                <span class="text-muted">Start trading to build your order history.</span>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+
+                    {% if orders %}
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td colspan="8" class="text-end px-5 fs-5" style="background-color: #F5F5F5;">Total Orders: {{ orders|length }}</td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

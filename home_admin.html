@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Home - Admin{% endblock %}
+{% block content %}
+
+{% if current_user.is_authenticated %}
+
+<div class="container">
+  <div class="row">
+
+    <div class="col-12 col-lg-6">
+      <div class="card hover-lift rounded-4 overflow-hidden mt-4" style="height: 850px;">
+        <div class="card-body" style="background-color: #F5F5F5;">
+          <h1 class="card-title text-center h4 py-2">User Management</h1>
+
+          <table class="table table-hover">
+              <thead>
+                  <tr>
+                      <th scope="col" style="background-color: #F5F5F5;">Name</th>
+                      <th scope="col" style="background-color: #F5F5F5;">Username</th>
+                      <th scope="col" style="background-color: #F5F5F5;">Balance</th>
+                      <th scope="col" style="background-color: #F5F5F5;">Update/Delete</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for i in user %}
+                  <tr>
+                      <td style="background-color: #F5F5F5;">{{ i.fullName }}</td>
+                      <td style="background-color: #F5F5F5;">{{ i.username }}</td>
+                      <td style="background-color: #F5F5F5;">${{ i.availableFunds }}</td>
+                      <td class="d-flex gap-2" style="background-color: #F5F5F5;">
+                          <a class="btn btn-sm btn-primary" href="{{ url_for('updateUser', user_id=i.userId) }}" style="background-color: #FFC627;color: #F5F5F5;border:none;">Update</a>
+                          <form method="POST" action="{{ url_for('deleteUser', user_id=i.userId)}}">
+                              <button type="submit" class="btn btn-sm btn-primary" style="background-color: #8C1D40;color: #F5F5F5;border:none;">Delete</button>
+                          </form>
+                      </td>
+                                    
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>   
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+
+      <div class="card hover-lift rounded-4 overflow-hidden mt-4" style="height: 400px;">
+        <div class="card-body" style="background-color: #F5F5F5;">
+          <h1 class="card-title text-center h4 py-2">Available Stock</h1>
+
+          <div style="height: 315px; overflow-y: auto;">
+            <table class="table table-hover" id="availableStock">
+              <thead>
+                <tr>
+                  <th scope="col" style="background-color: #F5F5F5;">Ticker</th>
+                  <th scope="col" style="background-color: #F5F5F5;">Initial Price</th>
+                  <th scope="col" style="background-color: #F5F5F5;">Current Price</th>
+                  <th scope="col" style="background-color: #F5F5F5;">Open</th>
+                  <th scope="col" style="background-color: #F5F5F5;">High</th>
+                  <th scope="col" style="background-color: #F5F5F5;">Low</th>
+                  <th scope="col" style="background-color: #F5F5F5;">Volume</th>
+                  <th scope="col" style="background-color: #F5F5F5;">Market Cap</th>
+                </tr>
+              </thead>
+              <tbody id="available-stock-table-body">
+                {% for i in stock %}
+                <tr>
+                  <th scope="row" style="background-color: #F5F5F5;">{{ i.ticker }}</th>
+                  <td style="background-color: #F5F5F5;">${{ "{:,.2f}".format(i.initStockPrice) }}</td>
+                  <td style="background-color: #F5F5F5;">${{ "{:,.2f}".format(i.currentMktPrice) }}</td>
+                  <td style="background-color: #F5F5F5;">${{ "{:,.2f}".format(i.dailyOpenPrice or 0) }}</td>
+                  <td style="background-color: #F5F5F5;">${{ "{:,.2f}".format(i.dailyHighPrice or 0) }}</td>
+                  <td style="background-color: #F5F5F5;">${{ "{:,.2f}".format(i.dailyLowPrice or 0) }}</td>
+                  <td style="background-color: #F5F5F5;">{{ i.volume or 0 }}</td>
+                  <td style="background-color: #F5F5F5;">
+                    {% if i.currentMktPrice and i.company and i.company.stockTotalQty %}
+                      ${{ "{:,.0f}".format(i.currentMktPrice * i.company.stockTotalQty) }}
+                    {% else %}
+                      $0
+                    {% endif %}
+                  </td> 
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card hover-lift rounded-4 overflow-hidden mt-5" style="height: 400px;">
+        <div class="card-body" style="background-color: #F5F5F5;">
+          <h1 class="card-title text-center h4 py-2">Quick Actions</h1>
+
+            <div class="row mt-5">
+              <div class="col ms-5">
+                <a href="{{ url_for('createStock') }}" class="btn btn-primary fs-5" style="background-color: #8C1D40; border: none; width: 75%;">Add Stock</a>
+              </div>
+              <div class="col ms-5">
+                <a href="{{ url_for('createaccount') }}" class="btn btn-primary fs-5" style="background-color: #8C1D40; border: none; width: 75%;">Add User</a>
+              </div>
+            </div>
+
+            <div class="row mt-5">
+              <div class="col ms-5 mt-5">
+                <form method="POST" action="{{ url_for('changeMktHrs') }}">
+                  <input type="hidden" name="action" value="clear_all">
+                  <button type="submit" class="btn btn-primary fs-5" style="background-color: green; border: none; width: 75%;">Open Market</button>
+                </form>
+              </div>
+              <div class="col ms-5 mt-5">
+                <a href="{{ url_for('changeMktHrs') }}" class="btn btn-primary fs-5" style="background-color: #8C1D40; border: none; width: 75%;">Mkt Hrs/Sched</a>
+              </div>
+            </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% else %}
+  <h1>You are not logged in</h1>
+{% endif %}
+
+<script>
+  function updateAvailableStockPrices() {
+    fetch('/api/stock_prices')
+      .then(response => response.json())
+      .then(data => {
+        const tbody = document.getElementById('available-stock-table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        data.forEach(row => {
+          const initPrice    = Number(row.initStockPrice ?? 0);
+          const currentPrice = Number(row.currentMktPrice ?? 0);
+          const openPrice    = Number(row.dailyOpenPrice ?? initPrice);
+          const highPrice    = Number(row.dailyHighPrice ?? currentPrice);
+          const lowPrice     = Number(row.dailyLowPrice ?? currentPrice);
+          const volume       = Number(row.volume ?? 0);
+          const marketCap    = Number(row.marketCap ?? 0);
+
+          tbody.innerHTML += `
+            <tr>
+              <th scope="row" style="background-color: #F5F5F5;">${row.ticker}</th>
+              <td style="background-color: #F5F5F5;">$${initPrice.toFixed(2)}</td>
+              <td style="background-color: #F5F5F5;">$${currentPrice.toFixed(2)}</td>
+              <td style="background-color: #F5F5F5;">$${openPrice.toFixed(2)}</td>
+              <td style="background-color: #F5F5F5;">$${highPrice.toFixed(2)}</td>
+              <td style="background-color: #F5F5F5;">$${lowPrice.toFixed(2)}</td>
+              <td style="background-color: #F5F5F5;">${volume.toLocaleString()}</td>
+              <td style="background-color: #F5F5F5;">$${marketCap.toLocaleString()}</td>
+            </tr>
+          `;
+        });
+      })
+      .catch(err => console.error("Admin stock update error:", err));
+  }
+
+  updateAvailableStockPrices();
+  setInterval(updateAvailableStockPrices, 15000);
+</script>
+
+{% endblock %}
